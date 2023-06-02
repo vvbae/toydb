@@ -1,0 +1,93 @@
+use std::collections::HashMap;
+
+use derive_more::Display;
+pub use error::{QueryExecutionError, SQLError};
+use table::{Table, TableIter};
+use toy_sql_parser::ast::{parse_multiple_queries, parse_sql_query, SqlQuery};
+
+mod error;
+mod row;
+mod table;
+
+// TODO: Eventually might be good to have to do something like
+// `query('..').fetch` to get values back the rest of the query types would
+// return unit or some message
+// see https://github.com/launchbadge/sqlx/tree/main#querying
+
+#[derive(Debug, Display)]
+pub enum ExecResponse<'a> {
+    #[display(fmt = "{_0:#?}")]
+    // Select(Vec<Row<'a>>),
+    Select(TableIter<'a>),
+    Insert,
+    Create,
+}
+
+#[derive(Debug, Default)]
+pub struct Execution {
+    tables: HashMap<String, Table>,
+}
+
+impl Execution {
+    pub fn new() -> Self {
+        Self {
+            tables: HashMap::new(),
+        }
+    }
+
+    pub fn run(&mut self, query: SqlQuery) -> Result<ExecResponse, QueryExecutionError> {
+        match query {
+            SqlQuery::Select(mut select) => {
+                let columns = select.fields;
+                let table = select.table;
+                let table = self
+                    .tables
+                    .get(&table)
+                    .ok_or(QueryExecutionError::TableNotFound(table))?;
+
+                Ok(ExecResponse::Select(table.select(columns)?))
+            }
+            SqlQuery::Insert(insert) => {
+                let Some(table) = self.tables.get_mut(&insert.table) else {
+                    return Err(QueryExecutionError::TableNotFound(insert.table))
+                };
+
+                table.insert(insert.values)?;
+                Ok(ExecResponse::Insert)
+            }
+            SqlQuery::Create(create) => {
+                let table = Table::new(create.columns);
+
+                self.tables.insert(create.table, table);
+                Ok(ExecResponse::Create)
+            }
+        }
+    }
+
+    pub fn parse_and_run<'a>(&mut self, query: &'a str) -> Result<ExecResponse, SQLError<'a>> {
+        let query = parse_sql_query(query)?;
+
+        let res = self.run(query)?;
+        Ok(res)
+    }
+
+    /// Run multiple queries and return the response for the last query
+    pub fn parse_multiple_and_run<'a>(
+        &'a mut self,
+        query: &'a str,
+    ) -> Result<ExecResponse, SQLError<'a>> {
+        // TODO: avoid clones
+        let queries = parse_multiple_queries(query)?;
+
+        let (last, rest) = queries
+            .split_last()
+            .expect("at least one query should have been parsed");
+
+        for q in rest {
+            self.run(q.clone())?;
+        }
+
+        let res = self.run(last.clone())?;
+        Ok(res)
+    }
+}

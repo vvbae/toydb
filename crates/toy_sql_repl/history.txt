@@ -1,0 +1,5 @@
+#V2
+h
+edqdd
+select col1 from goo;
+select col1 from goo, foo;

@@ -1,0 +1,16 @@
+[package]
+name = "toy_sql_parser"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nom = "7"
+nom_locate = "4.1.0"
+nom-supreme = "0.8.0"
+serde = { workspace = true }
+miette = { workspace = true }
+thiserror = { workspace = true }
+derive_more = { workspace = true }
+bigdecimal = { workspace = true }

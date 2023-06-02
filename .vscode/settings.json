@@ -1,0 +1,6 @@
+{
+	"rust-analyzer.linkedProjects": [
+		"./crates/toy_sql_repl/Cargo.toml",
+		"./crates/toy_sql_parser/Cargo.toml"
+	]
+}

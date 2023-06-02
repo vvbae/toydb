@@ -1,12 +1,3 @@
-# [package]
-# name = "toydb"
-# version = "0.1.0"
-# edition = "2021"
-
-# # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-# [dependencies]
-
 [workspace]
 members = [
     # all crates in a `./crates` folder will be added to the workspace
@@ -19,3 +10,5 @@ members = [
 miette = "5.5.0"
 serde = { version = "1.0.151", features = ["derive"] }
 thiserror = "1.0.38"
+derive_more = "0.99.17"
+bigdecimal = { version = "0.3.0", features = ["serde"] }

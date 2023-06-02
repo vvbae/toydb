@@ -1,0 +1,14 @@
+#V2
+create table foo (col1 string, col2 string);
+insert into foo values '2','3';
+select col1,col2 from foo;
+create table foo (col1 string, col2 string);
+insert into foo values '1','12';
+select col1,col2 from foo;
+insert into foo values '1','12';
+select col1,col2 from foo;
+CREATE TABLE foo (\n    col1 int,\n    col2 string\n);
+INSERT INTO foo\n    VALUES\n        1, 'aString';
+INSERT INTO foo\n    VALUES\n        4, 'aDiffString with spaces';
+SELECT\n    col1,\n    col2\nFROM\n    foo;
+INSERT INTO foo\n    VALUES\n        1, 1;
